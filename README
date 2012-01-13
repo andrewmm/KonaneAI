@@ -36,6 +36,9 @@ And in KonaneUtility.cpp:
         now, the simple AI will play as player 1, and the new AI will play
         as player 2.)
 
+        UPDATE: Now that I've fixed the function to return values in the
+        correct range, static_score_new seems to be the much better player.
+
     *   If you'd like to speed up or slow down the AI's (and make them worse
         or better at predicting moves respectively) change the number in the
         3rd argument of best_move within get_move_AI (again, at the bottom of
@@ -61,3 +64,17 @@ information.)
 Once you've written a new static_score function, you can set either or
 both of the AI's to use it by passing it's address to best_move inside
 of get_move_AI at the bottom of KonaneUtility.cpp, as described above.
+
+
+
+RUNNING MASS TESTS
+
+The AI can play reasonably quickly against human opponents, but it does take
+some time to examine the game tree, so running mass AI vs AI tests via a
+while loop in the main command is probably not ideal. Since it's a relatively
+cheap program, one possibility is to simply run the program repeatedly
+in the background with QUIET mode on (#define QUIET 1 at the top of main.cpp)
+and count the game-end messages when the processes finish. One simple way
+to do this is to enter, at the command line,
+
+    ./Konane & ./Konane & ./Konane & ./Konane & ./Konane & ...
