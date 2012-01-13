@@ -2,3 +2,48 @@ Andrew MacKie-Mason
 CMSC 16200, University of Chicago
 
 This project involves coding up the game Konane (Hawaiian checkers) as well as programming AI's to play against.
+
+
+
+SIMPLE CUSTOMIZATION
+
+For now, to use the code, the following options in main.cpp are easily customizable:
+
+    * The for loop in main is designed to test AI's against each other. To play against the computer as a human,
+      simply comment out the loop and add a line that reads
+            play_game(1,0);
+      The 1 represents the AI and the 0 the human; switching the order will switch who goes first.
+
+    * In play_game, the
+            gameboard.remove(x,y);
+      lines represent those pieces removed from play at the start. Change the coordinates to begin from a different
+      starting position.
+
+And in KonaneUtility.cpp:
+
+    * At the bottom of the file, the get_move_AI function controls which AI is called depending on which player the AI is
+      playing as. To change it, simply change the final argument of best_move to either
+            &(static_score_simple)
+      or
+            &(static_score_new)
+      both of which are defined in KonaneAI.cpp. At the moment, static_score_simple seems to be performing better.
+      (As the code is now, the simple AI will play as player 1, and the new AI will play as player 2.)
+
+    * If you'd like to speed up or slow down the AI's (and make them worse or better at predicting moves respectively)
+      change the number in the 3rd argument of best_move within get_move_AI (again, at the bottom of the file). This
+      is the maximum time (in seconds) the AI should take exploring the game tree, though it seems to run a few seconds
+      faster, for some reason. (Giving it 10 seconds, it usually seems to take 6.)
+
+
+WRITING NEW AI's
+
+To write a new AI that interfaces with the existing code, the simplest way is to create a new static_score function.
+The function should accept the same arguments as static_score_simple and static_score_new in KonaneAI.cpp, and must
+be templated in KonaneAI.h. The fuction should return a double between 0.1 and 1.9 inclusive, where higher numbers are
+better for the player who began the tree examination. (2 represents an assured win, 0 an assured loss. You do not need
+to worry too much about making sure that your function's return values are restricted to 0.1 to 1.9, because the calling
+function will simply truncate them if they are not. However, doing so is to your advantage because with truncation
+you lose valuable information.)
+
+Once you've written a new static_score function, you can set either or both of the AI's to use it by passing it's
+address to best_move inside of get_move_AI at the bottom of KonaneUtility.cpp, as described above.
