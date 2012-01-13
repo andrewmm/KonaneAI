@@ -35,11 +35,11 @@ double static_score_new (KonaneBoard *board, int player)
 
     if (board->check_turn() == player)
     {
-        return (size1 - size2) / 10;
+        return 1 + (size1 - size2) / 10;
     }
     else
     {
-        return (size2 - size1) / 10;
+        return 1 + (size2 - size1) / 10;
     }
 }
 

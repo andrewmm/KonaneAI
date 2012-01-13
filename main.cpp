@@ -11,6 +11,8 @@
 #include "KonaneAI.h"
 #include <iostream>
 
+#define QUIET 1
+
 using namespace std;
 
 int play_game(int AI_1, int AI_2)
@@ -19,19 +21,28 @@ int play_game(int AI_1, int AI_2)
     gameboard.remove(2,2);
     gameboard.remove(3,2);
 
-    cout << "Board:" << endl;
-    display_board(&gameboard);
+    if (QUIET == 0)
+    {
+        cout << "Board:" << endl;
+        display_board(&gameboard);
+    }
 
     time_t ltime;
 
     while (not game_over(&gameboard))
     {
         time(&ltime);
-        cout << asctime(localtime(&ltime));
-        cout << "It is Player " << gameboard.check_turn() << "'s turn." << endl;
+        if (QUIET == 0)
+        {
+            cout << asctime(localtime(&ltime));
+            cout << "It is Player " << gameboard.check_turn() << "'s turn." << endl;
+        }
         move(&gameboard);
-        cout << "Board:" << endl;
-        display_board(&gameboard);
+        if (QUIET == 0)
+        {
+            cout << "Board:" << endl;
+            display_board(&gameboard);
+        }
     }
 
     cout << "Game over. Player " << 3-gameboard.check_turn() << " wins!" << endl;
@@ -41,7 +52,7 @@ int play_game(int AI_1, int AI_2)
 
 int main()
 {
-    play_game(1,0);
+    play_game(1,1);
 /*    int wins[] = {0,0};
     int i;
     for (i = 0; i < 5; ++i)
