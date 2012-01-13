@@ -28,10 +28,10 @@ int play_game(int AI_1, int AI_2)
     {
         time(&ltime);
         cout << asctime(localtime(&ltime));
-//        cout << "It is Player " << gameboard.check_turn() << "'s turn." << endl;
+        cout << "It is Player " << gameboard.check_turn() << "'s turn." << endl;
         move(&gameboard);
-//        cout << "Board:" << endl;
-//        display_board(&gameboard);
+        cout << "Board:" << endl;
+        display_board(&gameboard);
     }
 
     cout << "Game over. Player " << 3-gameboard.check_turn() << " wins!" << endl;
@@ -41,14 +41,15 @@ int play_game(int AI_1, int AI_2)
 
 int main()
 {
-    int wins[] = {0,0};
+    play_game(1,0);
+/*    int wins[] = {0,0};
     int i;
     for (i = 0; i < 5; ++i)
     {
         wins[play_game(1,1) - 1]++;
     }
     cout << "Player 1 (simple) won " << wins[0] << " times." << endl;
-    cout << "Player 2 (advanced) won " << wins[1] << " times." << endl;
+    cout << "Player 2 (advanced) won " << wins[1] << " times." << endl; */
     return 0;
 }
 
