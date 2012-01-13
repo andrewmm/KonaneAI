@@ -11,7 +11,7 @@
 #include "KonaneAI.h"
 #include <iostream>
 
-#define QUIET 1
+#define QUIET 0
 
 using namespace std;
 

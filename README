@@ -23,6 +23,12 @@ customizable:
         lines represent those pieces removed from play at the start.
         Change the coordinates to begin from a different starting position.
 
+    *   The QUIET macro is used to enable or suppress output. Disble it to
+        play with a human player or if you want to watch the AI's play,
+        but disable it if you only want to know the result. When QUIET is
+        turned on (any non-zero value), the only output will be the end
+        game winner message.
+
 And in KonaneUtility.cpp:
 
     *   At the bottom of the file, the get_move_AI function controls which
