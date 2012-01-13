@@ -218,7 +218,7 @@ void get_move_AI (KonaneBoard *board, MOVE_VECTOR *movevec)
 {
     if (board->check_turn() == 1)
     {
-        best_move(board,movevec,10,&(static_score_simple));
+        best_move(board,movevec,10,&(static_score_new));
     }
     else
     {

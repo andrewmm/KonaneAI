@@ -144,6 +144,11 @@ void best_move (KonaneBoard *board, MOVE_VECTOR *movevec, int time_frame, double
         }
     }
 
+    if (maxscore == 0)
+    {
+        cout << "I'm gonna lose. :(" << endl;
+    }
+
     srand (time (NULL));
     int selectedmove = rand() % optimalmoves.size();
 

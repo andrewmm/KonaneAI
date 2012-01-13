@@ -52,7 +52,7 @@ int play_game(int AI_1, int AI_2)
 
 int main()
 {
-    play_game(1,1);
+    play_game(0,1);
 /*    int wins[] = {0,0};
     int i;
     for (i = 0; i < 5; ++i)
