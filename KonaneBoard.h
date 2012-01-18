@@ -9,37 +9,17 @@
 /*  This file contains the KonaneBoard class interface. Implementation is found
     in KonaneBoard.cpp */
 
-/*  Objects of the KonaneBoard class contain all of the information
-    needed to play a game of Konane.
-        board:      A grid of values representing the state of the board.
-                    The first coordinate is read across, the second coordinate
-                    is read down (see below). 0 represents empty, 1
-                    represents black, 2 represents white.
 
-        turn:       This stores the current player's turn. 1 represents black,
-                    2 represents white.
-
-        AI:         A two entry array of integers, representing whether players
-                    1 (black) and 2 (white) are AIs, respectively. 1 = AI, 0 = human.
-
-        KonaneBoard:Constructor. Sets up the board with alternating black and white
-                    pieces, starting with black at (0,0). Black goes first, 
-
-        remove:     Given two integers, this function removes the piece at that
-                    place. It can be called from outside the class to initialize
-                    the board, and will be used in the implementation of jump.
-
-        jump:       Given four integers, this function jumps the piece at the
-                    location indicated by the first two to the location
-                    indicated at the second two, removing intermediate
-                    pieces. If the move is illegal, no changes are made.
-                    If it's successful, the turn indicator is also changed.
-
-        check_turn: Simple access function for the turn variable. */
-
+#include <string>
+#include <vector>
 
 #ifndef __KONANE_BOARD_H_INCLUDED__
 #define __KONANE_BOARD_H_INCLUDED__
+
+#define MOVE_VECTOR vector<int>
+#define MOVES_ARRAY vector< MOVE_VECTOR >
+
+using namespace std;
 
 
 /*  Usage statements for class functions below.
@@ -77,26 +57,68 @@
     Return:         Safe access to the board array. Returns -1 if passed an invalid
                     position. */
 
+class KonaneBoard; // Forward declaration
+
+class KonaneAI
+{
+    private:
+        string AIName;
+        int timeframe;
+        double (*static_score_eval)(KonaneBoard *board, int player, int depth);
+        double (*end_game_eval)(KonaneBoard *board, int player, int depth);
+    public:
+        KonaneAI (double(*static_score)(KonaneBoard *board, int player, int depth),
+                  double(*end_game)(KonaneBoard *board, int player, int depth),
+                  int timef, string n);
+        KonaneAI (double(*static_score)(KonaneBoard *board, int player, int depth),
+                  double(*end_game)(KonaneBoard *board, int player, int depth),
+                  int timeframe);
+        KonaneAI ();
+
+        double recurse_score (KonaneBoard *board, int player, time_t stop_time, int depth);
+        void best_move (KonaneBoard *board, MOVE_VECTOR *movevec);
+};
+
+
+//  Some different functions that can be used for a specific AI's static_score_eval
+double static_score_simple (KonaneBoard *board, int player, int depth);
+double static_score_new (KonaneBoard *board, int player, int depth);
+
+//  Some different functions that can be used for a specific AI's end_game_eval
+double end_game_simple (KonaneBoard *board, int player, int depth);
+double end_game_depthadj (KonaneBoard *board, int player, int depth);
+
 
 class KonaneBoard
 {
     private:
         int board[6][6];
-        int turn;           // 1 = black, 2 = white
-        int AI[2];          // 1 = AI, 0 = human (position 0 = black...)
+        int turn;
+        int AI[2];
+        KonaneAI *AIPointers[2];
+        vector<string> names;
+
     public:
-        KonaneBoard (int, int);
+        KonaneBoard (KonaneAI *AI_1, KonaneAI *AI_2, string p1name, string p2name);
+        KonaneBoard (int which_AI, KonaneAI *AIPnt, string p1name, string p2name);
+        KonaneBoard (string p1name, string p2name);
         KonaneBoard ();
 
         void remove (int,int);
         void jump (int,int,int,int);
         void unjump (int,int,int,int);
-        void flip_turn ();
+        void flip_turn ();  // Use with CAUTION in hypothetical explorations of the game tree
+
+        void get_move_AI (MOVE_VECTOR *movevec);
 
         int check_turn ();
         bool check_AI ();
         int check_val (int, int);
+        string get_name (int player);
 };
+
+
+
 
 
 #endif

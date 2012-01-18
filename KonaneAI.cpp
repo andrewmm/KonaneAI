@@ -9,19 +9,24 @@
 /*  This file contains the implementation for the functions needed to operate the AI.
     Interface can be found in KonaneAI.h */
 
-#include "KonaneAI.h"
+#include "KonaneBoard.h"
+#include "KonaneUtility.h"
+
 #include <cmath>
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+#include <string>
+
+// Implementation for specific static score evaluator functions
 
 
-double static_score_simple (KonaneBoard *board, int player)
+double static_score_simple (KonaneBoard *board, int player, int depth)
 {
     return 1;
 }
 
-double static_score_new (KonaneBoard *board, int player)
+double static_score_new (KonaneBoard *board, int player, int depth)
 {
     MOVES_ARRAY movebox1,movebox2;
 
@@ -35,47 +40,96 @@ double static_score_new (KonaneBoard *board, int player)
 
     if (board->check_turn() == player)
     {
-        return 1 + (size1 - size2) / 10;
+        return 1 + (size1 - size2) / 10 - 1/(10 * (depth + 1));
     }
     else
     {
-        return 1 + (size2 - size1) / 10;
+        return 1 + (size2 - size1) / 10 - 1/(10 * (depth + 1));
     }
 }
 
+//  Implementation for specific end game evaluator functions
+double end_game_simple (KonaneBoard *board, int player, int depth)
+{
+    int thisturn = board->check_turn();
+    return 2 * fabs(thisturn - player);
+}
 
-double recurse_score (KonaneBoard *board, int player, time_t stop_time, double(*static_score)(KonaneBoard *, int))
+double end_game_depthadj (KonaneBoard *board, int player, int depth)
+{
+    int thisturn = board->check_turn();
+    if (thisturn == player)
+    {
+        return (0 - 1/(10 * (depth + 1)));
+    }
+    else
+    {
+        return (2 + 1/(10 * (depth + 1)));
+    }
+}
+
+//  Various KonaneAI class constructors
+
+KonaneAI::KonaneAI (double(*static_score)(KonaneBoard *board, int player, int depth),
+                  double(*end_game)(KonaneBoard *board, int player, int depth),
+                  int timef, string n)
+{
+    static_score_eval = static_score;
+    end_game_eval = end_game;
+    timeframe = timef;
+    AIName = n;
+}
+
+KonaneAI::KonaneAI (double(*static_score)(KonaneBoard *board, int player, int depth),
+                  double(*end_game)(KonaneBoard *board, int player, int depth),
+                  int timef)
+{
+    static_score_eval = static_score;
+    end_game_eval = end_game;
+    timeframe = timef;
+    AIName = "Computer Bob";
+}
+
+KonaneAI::KonaneAI ()
+{
+    static_score_eval = &static_score_new;
+    end_game_eval = &end_game_depthadj;
+    timeframe = 10;
+    AIName = "Computer Bob";
+}
+
+
+// Implementation for KonaneAI class functions
+
+
+double KonaneAI::recurse_score (KonaneBoard *board, int player, time_t stop_time, int depth)
 {
     MOVES_ARRAY movebox;
     generate_moves (board, &movebox);
-
     time_t current_time = time(NULL);
-
     int thisturn = board->check_turn();
 
     if (movebox.size() == 0)
     {
-        return 2 * fabs(thisturn - player);
+        return (*end_game_eval)(board, player, depth);
     }
 
     if (current_time >= stop_time)
     {
-        double temp_score = (*static_score)(board, player);
-        if (temp_score > 1.9)
+        double temp_score = (*static_score_eval)(board, player, depth);
+        if (temp_score > 1.99)
         {
-            return 1.9;
+            return 1.99;
         }
-        else if (temp_score < 0.1)
+        else if (temp_score < 0.01)
         {
-            return 0.1;
+            return 0.01;
         }
         else
         {
             return temp_score;
         }
     }
-
-    int i;
 
     int scoreacc;
     if (thisturn == player)
@@ -87,13 +141,14 @@ double recurse_score (KonaneBoard *board, int player, time_t stop_time, double(*
         scoreacc = 2;
     }
 
+    int i;
     for (i = 0; i < movebox.size(); ++i)
     {
         move_vector_to_jump(board, &(movebox[i]));
 
         time_t new_stop_time = current_time + (i+1) * (stop_time - current_time) / movebox.size();
 
-        int movescore = recurse_score (board, player, new_stop_time, static_score);
+        int movescore = recurse_score (board, player, new_stop_time, depth+1);
 
         if (thisturn == player)
         {
@@ -110,14 +165,14 @@ double recurse_score (KonaneBoard *board, int player, time_t stop_time, double(*
     return scoreacc;
 }
 
-void best_move (KonaneBoard *board, MOVE_VECTOR *movevec, int time_frame, double(*static_score)(KonaneBoard *, int))
+void KonaneAI::best_move (KonaneBoard *board, MOVE_VECTOR *movevec)
 {
     MOVES_ARRAY movebox;
     generate_moves (board, &movebox);
     movevec->clear();
 
     time_t current_time = time(NULL);
-    time_t stop_time = current_time + time_frame;
+    time_t stop_time = current_time + timeframe;
 
     vector<int> optimalmoves;
     int maxscore = 0;
@@ -130,7 +185,7 @@ void best_move (KonaneBoard *board, MOVE_VECTOR *movevec, int time_frame, double
 
         time_t new_stop_time = current_time + (i+1) * (stop_time - current_time) / movebox.size();
 
-        double movescore = recurse_score (&tempboard, board->check_turn(), new_stop_time, static_score);
+        double movescore = recurse_score (&tempboard, board->check_turn(), new_stop_time, 1);
 
         if (movescore > maxscore)
         {
@@ -153,37 +208,4 @@ void best_move (KonaneBoard *board, MOVE_VECTOR *movevec, int time_frame, double
     int selectedmove = rand() % optimalmoves.size();
 
     *movevec = movebox[optimalmoves[selectedmove]];
-}
-
-// Efficiency Tester, NOT REAL FUNCTION:
-
-void recurse (KonaneBoard *board, int depth, int maxdepth, int *endgames, int *continues, int *mostmoves)
-{
-    MOVES_ARRAY movebox;
-    generate_moves (board, &movebox);
-
-    if (movebox.size() > *mostmoves)
-    {
-        *mostmoves = movebox.size();
-    }
-
-    if (movebox.size() == 0)
-    {
-        ++(*endgames);
-    }
-    else
-    {
-        ++(*continues);
-    }
-
-    int i;
-    for (i = 0; i < movebox.size(); ++i)
-    {
-        move_vector_to_jump(board, &(movebox[i]));
-        if (depth + 1 <= maxdepth)
-        {
-            recurse (board, depth+1, maxdepth, endgames, continues, mostmoves);
-        }
-        move_vector_to_unjump(board, &(movebox[i]));
-    }
 }

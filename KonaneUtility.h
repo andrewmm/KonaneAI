@@ -88,12 +88,4 @@ void move (KonaneBoard *);
     Notes:          Will call get_move_AI if the current player is an AI. */
 void get_move (KonaneBoard *, MOVE_VECTOR *);
 
-
-
-/*  get_move_AI
-    Parameters:     A pointer to a KonaneBoard (the game board)
-                    A pointer to a move_vector (storage for the result)
-    Return:         Stores the supplied move in the move_vector */
-void get_move_AI (KonaneBoard *, MOVE_VECTOR *);
-
 #endif

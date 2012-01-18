@@ -10,7 +10,9 @@
     and detailed documentation comments are found in KonaneBoard.h */
 
 #include "KonaneBoard.h"
+
 #include <cmath>
+#include <string>
 
 using namespace std;
 
@@ -19,9 +21,70 @@ using namespace std;
 
     With parameters passed, sets up board with appropriate AI designations.
     Without parameters, assumes all human players. */
-KonaneBoard::KonaneBoard (int AI_1, int AI_2)
+
+KonaneBoard::KonaneBoard (KonaneAI *AI_1, KonaneAI *AI_2, string p1name, string p2name)
 {
-    AI[0] = AI_1; AI[1] = AI_2;
+    AI[0] = 1;
+    AI[1] = 1;
+    AIPointers[0] = AI_1;
+    AIPointers[1] = AI_2;
+    names.push_back(p1name);
+    names.push_back(p2name);
+
+    turn = 1;
+
+    int x;
+    for (x = 0; x <= 5; ++x)
+    {
+        int y;
+        for (y = 0; y <= 5; ++y)
+        {
+            board[x][y] = (x+y) % 2 + 1;    // Black (1) goes on even parity spots
+        }
+    }
+}
+
+KonaneBoard::KonaneBoard (int which_AI, KonaneAI *AIPnt, string p1name, string p2name)
+{
+    if (which_AI == 0 or which_AI == 1)
+    {
+        AI[which_AI] = 1;
+        AI[1-which_AI] = 0;
+        AIPointers[which_AI] = AIPnt;
+        AIPointers[1-which_AI] = NULL;
+    }
+    else
+    {
+        AI[0] = 1;
+        AI[1] = 0;
+        AIPointers[0] = AIPnt;
+        AIPointers[1] = NULL;
+    }
+    names.push_back(p1name);
+    names.push_back(p2name);
+
+    turn = 1;
+
+    int x;
+    for (x = 0; x <= 5; ++x)
+    {
+        int y;
+        for (y = 0; y <= 5; ++y)
+        {
+            board[x][y] = (x+y) % 2 + 1;    // Black (1) goes on even parity spots
+        }
+    }
+}
+
+KonaneBoard::KonaneBoard (string p1name, string p2name)
+{
+    AI[0] = 0;
+    AI[1] = 0;
+    AIPointers[0] = NULL;
+    AIPointers[1] = NULL;
+    names.push_back(p1name);
+    names.push_back(p2name);
+
     turn = 1;
 
     int x;
@@ -37,7 +100,13 @@ KonaneBoard::KonaneBoard (int AI_1, int AI_2)
 
 KonaneBoard::KonaneBoard ()
 {
-    AI[0] = 0; AI[1] = 0;
+    AI[0] = 0;
+    AI[1] = 0;
+    AIPointers[0] = NULL;
+    AIPointers[1] = NULL;
+    names.push_back("Player 1");
+    names.push_back("Player 2");
+
     turn = 1;
 
     int x;
@@ -239,4 +308,19 @@ int KonaneBoard::check_val (int x, int y)
     {
         return -1;
     }
+}
+
+
+
+/*  get_move_AI
+    Declared in KonaneBoard.h */
+void KonaneBoard::get_move_AI (MOVE_VECTOR *movevec)
+{
+    (AIPointers[check_turn() - 1])->best_move(this, movevec);
+}
+
+
+string KonaneBoard::get_name (int player)
+{
+    return names[player-1];
 }

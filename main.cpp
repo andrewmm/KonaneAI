@@ -8,133 +8,167 @@
 
 #include "KonaneBoard.h"
 #include "KonaneUtility.h"
-#include "KonaneAI.h"
+
 #include <iostream>
+#include <ctime>
+#include <cstdlib>
+#include <string>
+#include <sstream>
 
 #define QUIET 0
 
 using namespace std;
 
-int play_game(int AI_1, int AI_2)
+int play_game(int p1ai, string p1name, int p2ai, string p2name)
 {
-    KonaneBoard gameboard(AI_1, AI_2);
-    gameboard.remove(2,2);
-    gameboard.remove(3,2);
+    KonaneAI *ai1;
+    KonaneAI *ai2;
+    string input = "";
+
+    if (p1ai == 1)
+    {
+        char p1complex;
+        int p1timeframe;
+
+
+        cout << "Should " << p1name << " play with a complex strategy? (y/n) ";
+        getline (cin, input);
+        p1complex = input[0];
+
+        while (true)
+        {
+            cout << "What is " << p1name << "'s time frames? (4-10) ";
+            getline (cin, input);
+            if (stringstream(input) >> p1timeframe) break;
+        }
+        cout << "Test1" << endl;
+        
+        if (p1complex == 'y')
+        {
+            *ai1 = KonaneAI(&static_score_new, &end_game_depthadj, p1timeframe, p1name);
+        }
+        else
+        {
+            *ai1 = KonaneAI(&static_score_simple, &end_game_simple, p1timeframe, p1name);
+        }
+        cout << "Test" << endl;
+    }
+
+    if (p2ai == 1)
+    {
+        char p2complex;
+        int p2timeframe;
+
+        cout << "Should " << p2name << " play with a complex strategy? (y/n) ";
+        getline (cin, input);
+        p2complex = input[0];
+
+        while (true)
+        {
+            cout << "What is " << p2name << "'s time frame? (4-10) ";
+            getline (cin, input);
+            stringstream conversion(input);
+            if (conversion >> p2timeframe) break;
+        }
+
+        if (p2complex == 'y')
+        {
+            *ai2 = KonaneAI (&static_score_new, &end_game_depthadj, p2timeframe, p2name);
+        }
+        else
+        {
+            *ai2 = KonaneAI (&static_score_simple, &end_game_simple, p2timeframe, p2name);
+        }
+    }
+
+    KonaneBoard *gameboard;
+
+    if (p1ai == 1 and p2ai == 1)
+    {
+        *gameboard = KonaneBoard(ai1, ai2, p1name, p2name);
+    }
+    else if (p1ai == 1)
+    {
+        *gameboard = KonaneBoard(1, ai1, p1name, p2name);
+    }
+    else if (p2ai == 1)
+    {
+        *gameboard = KonaneBoard(2, ai2, p1name, p2name);
+    }
+    else
+    {
+        *gameboard = KonaneBoard();
+    }
+
+    gameboard->remove(2,2);
+    gameboard->remove(3,2);
 
     if (QUIET == 0)
     {
         cout << "Board:" << endl;
-        display_board(&gameboard);
+        display_board(gameboard);
     }
 
     time_t ltime;
 
-    while (not game_over(&gameboard))
+    while (not game_over(gameboard))
     {
         time(&ltime);
         if (QUIET == 0)
         {
             cout << asctime(localtime(&ltime));
-            cout << "It is Player " << gameboard.check_turn() << "'s turn." << endl;
+            cout << "It is " << gameboard->get_name(gameboard->check_turn()) << "'s turn." << endl;
         }
-        move(&gameboard);
+        move(gameboard);
         if (QUIET == 0)
         {
             cout << "Board:" << endl;
-            display_board(&gameboard);
+            display_board(gameboard);
         }
     }
 
-    cout << "Game over. Player " << 3-gameboard.check_turn() << " wins!" << endl;
+    cout << "Game over. Player " << 3-gameboard->check_turn() << " wins!" << endl;
 
-    return 3-gameboard.check_turn();
+    return 3-gameboard->check_turn();
 }
 
 int main()
 {
-    play_game(0,1);
-/*    int wins[] = {0,0};
-    int i;
-    for (i = 0; i < 5; ++i)
+    char p1hum, p2hum;
+    int p1ai, p2ai;
+    string p1name, p2name;
+    string input;
+
+    cout << "Welcome to Konane. Is player 1 a human? (y/n) ";
+    getline (cin, input);
+    p1hum = input[0];
+    
+    cout << "What is player 1's name? ";
+    getline (cin, p1name);
+    if (p1hum == 'n')
     {
-        wins[play_game(1,1) - 1]++;
+        p1ai = 1;
     }
-    cout << "Player 1 (simple) won " << wins[0] << " times." << endl;
-    cout << "Player 2 (advanced) won " << wins[1] << " times." << endl; */
+    else
+    {
+        p1ai = 0;
+    }
+
+    cout << "Is player 2 a human? (y/n) ";
+    getline (cin, input);
+    p2hum = input[0];
+
+    cout << "What is player 2's name? ";
+    getline (cin, p2name);
+    if (p2hum == 'n')
+    {
+        p2ai = 1;
+    }
+    else
+    {
+        p2ai = 0;
+    }
+
+    play_game(p1ai, p1name, p2ai, p2name);
     return 0;
 }
-
-/*
-int main()
-{
-    cout << "Application beginning.\n";
-    KonaneBoard gameboard(0,1);
-    cout << "Gameboard initialized.\n";
-
-    int xr,yr;
-    for (xr = 2; xr <= 3; ++xr)
-    {
-        for (yr = 2; yr ==2; ++yr)
-        {
-            gameboard.remove(xr,yr);
-        }
-    }
-
-    cout << "Board:" << endl;
-    int x,y;
-    for (y=0; y <= 5; ++y)
-    {
-        for (x=0; x <= 5; ++x)
-        {
-            cout << gameboard.check_val(x,y) << " ";
-        }
-        cout << "\n";
-    }
-
-    cout << "It's player " << gameboard.check_turn() << "'s turn." << endl;
-
-    MOVES_ARRAY somemoves;
-    generate_moves(&gameboard, &somemoves);
-    cout << "Number of moves: " << somemoves.size() << endl;
-
-    int i;
-    for (i=0; i < somemoves.size(); ++i)
-    {
-        int j;
-        cout << "<";
-        for (j = 0; j < (somemoves[i]).size(); ++j)
-        {
-            cout << somemoves[i][j] << ",";
-        }
-        cout << ">, ";
-    }
-    cout << endl;
-
-    best_move(&gameboard, 6);
-
-    cout << "Board:" << endl;
-    for (y=0; y <= 5; ++y)
-    {
-        for (x=0; x <= 5; ++x)
-        {
-            cout << gameboard.check_val(x,y) << " ";
-        }
-        cout << "\n";
-    }
-}
-
-*/
-
-
-//    eval_moves(&gameboard, 6);
-
-/*    int endgames = 0;
-    int continues = 0;
-    int mostmoves = 0;
-
-    time_t ltime;
-    time(&ltime);
-    cout << endl << endl  << asctime(localtime(&ltime)) << "Begin recursion!" << endl << endl;
-    recurse(&gameboard, 0, 8, &endgames, &continues, &mostmoves);
-    time(&ltime);
-    cout << asctime(localtime(&ltime)) << "End recursion!" << endl << "Endgames: " << endgames << endl << "Total: " << endgames + continues << endl << "Most moves: " << mostmoves << endl; */

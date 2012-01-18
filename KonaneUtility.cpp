@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include "KonaneUtility.h"
-#include "KonaneAI.h"
+#include "KonaneBoard.h"
 
 
 
@@ -168,7 +168,7 @@ void move (KonaneBoard *board)
 
     if(board->check_AI())
     {
-        get_move_AI(board, &movevec);
+        board->get_move_AI(&movevec);
     }
     else
     {
@@ -208,20 +208,4 @@ void get_move (KonaneBoard *board, MOVE_VECTOR *movevec)
     cin >> y2;
 
     movevec->push_back(x1); movevec->push_back(y1); movevec->push_back(x2); movevec->push_back(y2);
-}
-
-
-
-/*  get_move_AI
-    Declared in KonaneUtility.h */
-void get_move_AI (KonaneBoard *board, MOVE_VECTOR *movevec)
-{
-    if (board->check_turn() == 1)
-    {
-        best_move(board,movevec,10,&(static_score_new));
-    }
-    else
-    {
-        best_move(board,movevec,10,&(static_score_new));
-    }
 }
