@@ -7,115 +7,158 @@
     University of Chicago, CMSC 16200 */
 
 /*  This file contains the KonaneBoard class implementation. The interface
-    and detailed documentation comments are found in KonaneBoard.h */
+    can be found in KonaneBoard.h */
 
 #include "KonaneBoard.h"
 
 #include <cmath>
 #include <string>
+#include <iostream>
 
 using namespace std;
 
-/*  KonaneBoard class constructors
-    Declared in KonaneBoard.h
+/*  Various KonaneBoard class constructors, defined as functions rather than constructors
+    to allow for initialization after declaration (in if/else constructs). */
 
-    With parameters passed, sets up board with appropriate AI designations.
-    Without parameters, assumes all human players. */
 
-KonaneBoard::KonaneBoard (KonaneAI *AI_1, KonaneAI *AI_2, string p1name, string p2name)
+void KonaneBoard::KonaneBoard_clear (int board_size)
 {
-    AI[0] = 1;
-    AI[1] = 1;
-    AIPointers[0] = AI_1;
-    AIPointers[1] = AI_2;
-    names.push_back(p1name);
-    names.push_back(p2name);
-
-    turn = 1;
-
+    board.clear();
+    
+    boardsize = board_size;
+    
     int x;
-    for (x = 0; x <= 5; ++x)
+    for (x = 0; x < board_size; ++x)
     {
+        vector<int> column;
+        board.push_back(column);
         int y;
-        for (y = 0; y <= 5; ++y)
+        for (y = 0; y < board_size; ++y)
         {
-            board[x][y] = (x+y) % 2 + 1;    // Black (1) goes on even parity spots
+            board[x].push_back(0);    // Black (1) goes on even parity spots
         }
     }
 }
 
-KonaneBoard::KonaneBoard (int which_AI, KonaneAI *AIPnt, string p1name, string p2name)
+void KonaneBoard::KonaneBoard_init0 (int board_size, KonaneAI *AI_1, KonaneAI *AI_2, string p1name, string p2name)
 {
-    if (which_AI == 0 or which_AI == 1)
+    AI[0] = true;
+    AI[1] = true;
+    AIPointers[0] = AI_1;
+    AIPointers[1] = AI_2;
+    names.clear();
+    names.push_back(p1name);
+    names.push_back(p2name);
+    boardsize = board_size;
+
+    turn = 1;
+    
+    board.clear();
+
+    int x;
+    for (x = 0; x < board_size; ++x)
     {
-        AI[which_AI] = 1;
-        AI[1-which_AI] = 0;
-        AIPointers[which_AI] = AIPnt;
-        AIPointers[1-which_AI] = NULL;
+        vector<int> column;
+        board.push_back(column);
+        int y;
+        for (y = 0; y < board_size; ++y)
+        {
+            board[x].push_back((x+y) % 2 + 1);    // Black (1) goes on even parity spots
+        }
+    }
+}
+
+void KonaneBoard::KonaneBoard_init1 (int board_size, int which_AI, KonaneAI *AIPnt, string p1name, string p2name)
+{
+    if (which_AI == 1 or which_AI == 2)
+    {
+        AI[which_AI-1] = true;
+        AI[2-which_AI] = false;
+        AIPointers[which_AI-1] = AIPnt;
+        AIPointers[2-which_AI] = NULL;
     }
     else
     {
-        AI[0] = 1;
-        AI[1] = 0;
+        AI[0] = true;
+        AI[1] = false;
         AIPointers[0] = AIPnt;
         AIPointers[1] = NULL;
     }
+    names.clear();
     names.push_back(p1name);
     names.push_back(p2name);
+    boardsize = board_size;
 
     turn = 1;
 
+    board.clear();
+    
     int x;
-    for (x = 0; x <= 5; ++x)
+    for (x = 0; x < board_size; ++x)
     {
+        vector<int> column;
+        board.push_back(column);
         int y;
-        for (y = 0; y <= 5; ++y)
+        for (y = 0; y < board_size; ++y)
         {
-            board[x][y] = (x+y) % 2 + 1;    // Black (1) goes on even parity spots
+            board[x].push_back((x+y) % 2 + 1);    // Black (1) goes on even parity spots
         }
     }
 }
 
-KonaneBoard::KonaneBoard (string p1name, string p2name)
+void KonaneBoard::KonaneBoard_init2 (int board_size, string p1name, string p2name)
 {
-    AI[0] = 0;
-    AI[1] = 0;
+    AI[0] = false;
+    AI[1] = false;
     AIPointers[0] = NULL;
     AIPointers[1] = NULL;
+    names.clear();
     names.push_back(p1name);
     names.push_back(p2name);
+    boardsize = board_size;
 
     turn = 1;
 
+    board.clear();
+    
     int x;
-    for (x = 0; x <= 5; ++x)
+    for (x = 0; x < board_size; ++x)
     {
+        vector<int> column;
+        board.push_back(column);
         int y;
-        for (y = 0; y <= 5; ++y)
+        for (y = 0; y <= board_size; ++y)
         {
-            board[x][y] = (x+y) % 2 + 1;    // Black (1) goes on even parity spots
+            board[x].push_back((x+y) % 2 + 1);    // Black (1) goes on even parity spots
         }
     }
 }
 
-KonaneBoard::KonaneBoard ()
+void KonaneBoard::KonaneBoard_init3 ()
 {
-    AI[0] = 0;
-    AI[1] = 0;
+    AI[0] = false;
+    AI[1] = false;
     AIPointers[0] = NULL;
     AIPointers[1] = NULL;
+    names.clear();
     names.push_back("Player 1");
     names.push_back("Player 2");
+    
+    boardsize = 6;
 
     turn = 1;
 
+    board.clear();
+    
     int x;
-    for (x = 0; x <= 5; ++x)
+    for (x = 0; x < boardsize; ++x)
     {
+        vector<int> column;
+        board.push_back(column);
         int y;
-        for (y = 0; y <= 5; ++y)
+        for (y = 0; y < boardsize; ++y)
         {
-            board[x][y] = (x+y) % 2 + 1;    // Black (1) goes on even parity spots
+            board[x].push_back((x+y) % 2 + 1);    // Black (1) goes on even parity spots
         }
     }
 }
@@ -125,7 +168,21 @@ KonaneBoard::KonaneBoard ()
     Removes the piece that is at (x,y) */
 void KonaneBoard::remove (int x,int y)
 {
-    board[x][y] = 0;
+    bool legal;
+    if (check_turn() == 1)
+    {
+        legal = ((x == 0 || x == boardsize-1) && (y == x || y == boardsize - 1 - x)) ||
+                ((x == boardsize / 2 - 1 || x == boardsize / 2) && (y == boardsize / 2 - 1 || y == boardsize / 2));
+    }
+    else
+    {
+        legal = check_val(x,y+1) == 0 || check_val(x,y-1) == 0 || check_val(x-1,y) == 0 || check_val(x+1,y) == 0;
+    }
+    if (check_val(x,y) == check_turn() && legal)
+    {
+        board[x][y] = 0;
+        turn = 3-turn;
+    }
 }
 
 /*  jump
@@ -288,11 +345,18 @@ int KonaneBoard::check_turn ()
     return turn;
 }
 
+/*  size
+    Access function for boardsize */
+int KonaneBoard::size ()
+{
+    return boardsize;
+}
+
 /*  check_AI
     Returns true if the current player is an AI, false otherwise. */
 bool KonaneBoard::check_AI ()
 {
-    return (AI[turn-1] == 1);
+    return (AI[turn-1]);
 }
 
 /*  check_val
@@ -300,7 +364,7 @@ bool KonaneBoard::check_AI ()
     Safe access to the board array. Returns -1 if passed an invalid position. */
 int KonaneBoard::check_val (int x, int y)
 {
-    if (0 <= x and x <= 5 and 0 <= y and y <= 5)    // Safe access
+    if (0 <= x and x < boardsize and 0 <= y and y < boardsize)    // Safe access
     {
         return board[x][y];
     }
@@ -319,8 +383,244 @@ void KonaneBoard::get_move_AI (MOVE_VECTOR *movevec)
     (AIPointers[check_turn() - 1])->best_move(this, movevec);
 }
 
+void KonaneBoard::get_remove_AI (MOVE_VECTOR *removevec)
+{
+    (AIPointers[check_turn() - 1])->best_remove(this, removevec);
+}
+
 
 string KonaneBoard::get_name (int player)
 {
     return names[player-1];
+}
+
+void KonaneBoard::display_board ()
+{
+    int x,y;
+    cout << "    0 1 2 3 4 5" << endl << "    -----------" << endl;
+    for (y=0; y < boardsize; ++y)
+    {
+        cout << y << " | ";
+        for (x=0; x < boardsize; ++x)
+        {
+            int disp = check_val(x,y);
+            if (disp == 0)
+            {
+                cout << "  ";
+            }
+            else
+            {
+                cout << disp << " ";
+            }
+        }
+        cout << endl;
+    }
+}
+
+void KonaneBoard::generate_moves (MOVES_ARRAY *movebox)
+{
+    movebox->clear();
+    
+    int x;
+    for (x = 0; x < boardsize; ++x)
+    {
+        int y;
+        for (y = 0; y < boardsize; ++y)
+        {
+            if(check_val(x, y) == check_turn())
+            {
+                generate_moves_piece (movebox, x, y);
+            }
+        }
+    }
+}
+
+void KonaneBoard::generate_moves_piece (MOVES_ARRAY *movebox, int x, int y)
+{
+    int dir;
+    for (dir=1; dir != -3; dir=dir-2)   // loop will run for dir = 1, -1
+    {
+        int x_temp = x+2*dir;
+        int y_temp = y+2*dir;
+        
+        int i = 1;
+        while (check_val(x,y_temp) == 0 and check_val(x,y_temp-dir) == 3-check_turn())
+        {
+            int themove_ar[] = {x,y,x,y_temp};
+            MOVE_VECTOR themove(themove_ar,themove_ar+4);
+            movebox->push_back(themove);
+            ++i;
+            y_temp = y+2*i*dir;
+        }
+        
+        i = 1;
+        while (check_val(x_temp,y) == 0 and check_val(x_temp-dir,y) == 3-check_turn())
+        {
+            int themove_ar[] = {x,y,x_temp,y};
+            MOVE_VECTOR themove(themove_ar,themove_ar+4);
+            movebox->push_back(themove);
+            ++i;
+            x_temp = x+2*i*dir;
+        }
+    }
+}
+
+//  Generate an array of possible removes (each is a pair of integers in a vector)
+//  And put it in the provided box. There are two possibilities: either this is the
+//  first player to remove, or the second player to remove.
+void KonaneBoard::generate_removes(vector< vector<int> > *removeBox)
+{
+    if (check_turn() == 1)
+    {
+        // Corner spots
+        int c1[2] = {0,0};
+        vector<int> vc1(c1,c1+2);
+        int c2[2] = {boardsize-1,boardsize-1};
+        vector<int> vc2(c2,c2+2);
+        
+        // Middle spots
+        int m1[2] = {boardsize/2 - 1,boardsize/2 - 1};
+        vector<int> vm1(m1,m1+2);
+        int m2[2] = {boardsize/2, boardsize/2};
+        vector<int> vm2(m2,m2+2);
+        
+        removeBox->push_back(vc1);
+        removeBox->push_back(vc2);
+        removeBox->push_back(vm1);
+        removeBox->push_back(vm2);
+    }
+    else
+    {
+        // Find the piece that was removed
+        int x = -1;
+        int y = -1;
+        int i;
+        for (i = 0; i < boardsize; ++i)
+        {
+            int j;
+            for (j = 0; j < boardsize; ++j)
+            {
+                if (check_val(i,j) == 0)
+                {
+                    x = i;
+                    y = j;
+                }
+            }
+        }
+        if (x != -1 && y != -1)
+        {
+            int up[2] = {x,y+1};
+            vector<int> vup(up,up+2);
+            int down[2] = {x,y-1};
+            vector<int> vdown(down,down+2);
+            int left[2] = {x-1,y};
+            vector<int> vleft(left,left+2);
+            int right[2] = {x+1,y};
+            vector<int> vright(right,right+2);
+            
+            removeBox->push_back(vup);
+            removeBox->push_back(vdown);
+            removeBox->push_back(vleft);
+            removeBox->push_back(vright);
+        }
+    }
+}
+
+void KonaneBoard::move ()
+{
+    MOVE_VECTOR movevec;
+    int curturn = check_turn();
+    
+    if(check_AI())
+    {
+        get_move_AI(&movevec);
+    }
+    else
+    {
+        get_move(&movevec);
+    }
+    
+    move_vector_to_jump(&movevec);
+    
+    if (check_turn() == curturn and check_AI())
+    {
+        move ();
+    }
+    else if (check_turn() == curturn)
+    {
+        cout << "Illegal move." << endl;
+        move ();
+    }
+}
+
+void KonaneBoard::get_move (MOVE_VECTOR *movevec)
+{
+    int x1,y1,x2,y2;
+    movevec->clear();
+    
+    cout << "x1 = ";
+    cin >> x1;
+    cout << "y1 = ";
+    cin >> y1;
+    cout << "x2 = ";
+    cin >> x2;
+    cout << "y2 = ";
+    cin >> y2;
+    
+    movevec->push_back(x1); movevec->push_back(y1); movevec->push_back(x2); movevec->push_back(y2);
+}
+
+
+/*  game_over
+ Parameters:     board, a pointer to a KonaneBoard object.
+ Return:         true if there are no more available moves on the board,
+ false otherwise. */
+bool KonaneBoard::game_over ()
+{
+    MOVES_ARRAY movebox;
+    generate_moves(&movebox);
+    return (movebox.empty());
+}
+
+
+/*  move_vector_to_jump
+ Declared in KonaneBoard.h */
+void KonaneBoard::move_vector_to_jump (MOVE_VECTOR *movevec)
+{
+    if (movevec->size() == 4)
+    {
+        jump((*movevec)[0],(*movevec)[1],(*movevec)[2],(*movevec)[3]);
+    }
+    else
+    {
+        cout << "Weird error: movevec the wrong size in move_vector_to_jump." << endl;
+    }
+}
+
+
+/*  move_vector_to_unjump
+ Declared in KonaneBoard.h */
+void KonaneBoard::move_vector_to_unjump (MOVE_VECTOR *movevec)
+{
+    if (movevec->size() == 4)
+    {
+        unjump((*movevec)[0],(*movevec)[1],(*movevec)[2],(*movevec)[3]);
+    }
+    else
+    {
+        cout << "Weird error: movevec the wrong size in move_vector_to_unjump." << endl;
+    }
+}
+
+
+void KonaneBoard::move_vector_to_remove(MOVE_VECTOR *movevec)
+{
+    if (movevec->size() == 2)
+    {
+        remove((*movevec)[0],(*movevec)[1]);
+    }
+    else
+    {
+        cout << "Weird error: movevec the wrong size in move_vector_to_remove." << endl;
+    }
 }
