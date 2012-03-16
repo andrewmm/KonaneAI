@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>backgroundColor</key>
+	<data>BAtzdHJlYW10eXBlZIHoA4QBQISEhAdOU0NvbG9yAISECE5TT2JqZWN0AIWEAWMBhARmZmZmg9fW1j6DhYSEPoOZmBg+AYY=</data>
+	<key>cellColor</key>
+	<data>BAtzdHJlYW10eXBlZIHoA4QBQISEhAdOU0NvbG9yAISECE5TT2JqZWN0AIWEAWMBhARmZmZmg4WEBD+Dvby8PoOFhIQ+AYY=</data>
+	<key>highlightColor</key>
+	<data>BAtzdHJlYW10eXBlZIHoA4QBQISEhAdOU0NvbG9yAISECE5TT2JqZWN0AIWEAWMBhARmZmZmAYO6uTk/g/HwcD0Bhg==</data>
+	<key>p1AIDiff</key>
+	<string>Hard</string>
+	<key>p2AIDiff</key>
+	<string>Hard</string>
+	<key>p1AITime</key>
+	<integer>10</integer>
+	<key>p2AITime</key>
+	<integer>10</integer>
+	<key>player1Name</key>
+	<string>Player 1</string>
+	<key>player2Name</key>
+	<string>Player 2</string>
+	<key>player1AI</key>
+	<string>Human</string>
+	<key>player2AI</key>
+	<string>Computer</string>
+</dict>
+</plist>
